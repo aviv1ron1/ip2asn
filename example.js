@@ -1,7 +1,4 @@
-var ip2asn = require('./index.js')(); //('geoipasnum2.csv');
-var moment = require('moment');
-
-var now = moment();
+var ip2asn = require('./index.js')();
 
 var opts = {};
 
