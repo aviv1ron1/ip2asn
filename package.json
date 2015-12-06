@@ -1,0 +1,32 @@
+{
+    "name": "ip2asn",
+    "version": "0.0.1",
+    "description": "nodejs module for getting asn for a given ip",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/aviv1ron1/ip2asn.git"
+    },
+    "author": {
+        "name": "Aviv Ron",
+        "email": "aviv1ron1@gmail.com"
+    },
+    "keywords": [
+        "ip",
+        "asn",
+        "geoip",
+        "geoipasn",
+        "geoipasnum",
+        "maxmind",
+        "geolite"
+    ],
+    "dependencies": {
+        "csvly": "*",
+        "ip": "^1.1.0",
+        "binary-search": "^1.2",
+        "request": "*",
+        "unzip": "^0.1.11",
+        "moment": "^2.10.6"
+    },
+    "main": "index.js",
+    "license": "MIT"
+}
