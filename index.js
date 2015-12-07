@@ -9,8 +9,9 @@ var stream = require('stream')
 var Transform = stream.Transform;
 var fs = require('fs');
 var moment = require('moment');
+var path = require('path');
 
-module.exports = function(path) {
+module.exports = function(dbPath) {
 
     function ptawtd(out) {
         Transform.call(this);
@@ -42,21 +43,25 @@ module.exports = function(path) {
         return a.start - b.start;
     }
 
-    var DBPATH = "GeoIPASNum2"
+    var DBPATH = "GeoIPASNum2";
+
+    function getPath(ext) {
+        return path.join(__dirname, DBPATH + ext);
+    }
 
     function Lookup(dbPath) {
         EventEmitter.call(this);
         if (dbPath) {
             this.dbPath = dbPath;
         } else {
-            this.dbPath = DBPATH + ".csv";
+            this.dbPath = getPath(".csv");
         }
     }
 
     util.inherits(Lookup, EventEmitter);
 
     Lookup.prototype.lastUpdated = function(callback) {
-        fs.stat(DBPATH + ".csv", function(err, stats) {
+        fs.stat(getPath(".csv"), function(err, stats) {
             if (err) {
                 callback(err);
             } else {
@@ -76,7 +81,7 @@ module.exports = function(path) {
             request(self.url)
                 .pipe(unzip.Parse()).on('entry', function(entry) {
                     if (entry.path === DBPATH + ".csv") {
-                        var transform = new ptawtd(fs.createWriteStream(DBPATH + ".tmp"));
+                        var transform = new ptawtd(fs.createWriteStream(getPath(".tmp")));
                         entry.pipe(transform);
                         self.dbPath = transform;
                         self.canload = true;
@@ -103,7 +108,7 @@ module.exports = function(path) {
             reader.on('end', function() {
                 self.validateSorted();
                 if (opts && opts.update) {
-                    fs.rename(DBPATH + ".tmp", DBPATH + ".csv");
+                    fs.rename(getPath(".tmp"), getPath(".csv"));
                 }
                 self.ready = true;
                 self.emit("ready");
@@ -165,5 +170,5 @@ module.exports = function(path) {
         return null;
     };
 
-    return new Lookup(path);
+    return new Lookup(dbPath);
 }
