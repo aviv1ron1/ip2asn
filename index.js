@@ -81,7 +81,7 @@ module.exports = function(dbPath) {
             request(self.url)
                 .pipe(unzip.Parse()).on('entry', function(entry) {
                     if (entry.path === DBPATH + ".csv") {
-                        var transform = new ptawtd(fs.createWriteStream(getPath(".tmp")));
+                        var transform = new ptawtd(fs.createWriteStream(getPath(process.pid + ".tmp")));
                         entry.pipe(transform);
                         self.dbPath = transform;
                         self.canload = true;
@@ -108,11 +108,27 @@ module.exports = function(dbPath) {
             reader.on('end', function() {
                 self.validateSorted();
                 if (opts && opts.update) {
-                    fs.rename(getPath(".tmp"), getPath(".csv"));
+                    fs.rename(getPath(process.pid + ".tmp"), getPath(".csv"), (err) => {
+                        if (err) {
+                            fs.stat(getPath(".csv"), (err, stats) => {
+                                if (err) {
+                                    var errMsg = util.format("ip2asn encountered an error when updating its database: %s", err);
+                                    console.error(errMsg);
+                                    throw new Error(errMsg);
+                                } else {
+                                    self.ready = true;
+                                    self.emit("ready");
+                                }
+                            });
+                        } else {
+                            self.ready = true;
+                            self.emit("ready");
+                        }
+                    });
+                } else {
+                    self.ready = true;
+                    self.emit("ready");
                 }
-                self.ready = true;
-                self.emit("ready");
-
             });
             reader.read();
         })
